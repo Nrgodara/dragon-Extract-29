@@ -32,11 +32,8 @@ class MyClient(Client):
         await super().start(*args, **kwargs)
         
         # Manually adjust time to local time zone
-        synced_time = datetime.utcnow()  # Assuming synchronized time is in UTC
-        local_time = synced_time + timedelta(hours=5, minutes=30)  # Adjust for GMT+5:30
-        
-        LOGGER.info(f"Synchronized Time (UTC): {synced_time}")
-        LOGGER.info(f"Local Time: {local_time}")
+        local_time_offset = timedelta(hours=5, minutes=30)  # Adjust for GMT+5:30
+        await self.set_time_offset(local_time_offset.total_seconds())
 
 if __name__ == "__main__":
     bot = MyClient(
