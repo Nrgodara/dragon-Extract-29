@@ -2,10 +2,8 @@ import os
 from config import Config
 from pyrogram import Client, idle
 import asyncio, logging
-import tgcrypto
-from pyromod import listen
-from logging.handlers import RotatingFileHandler
 from datetime import datetime, timedelta
+from logging.handlers import RotatingFileHandler
 
 # Configure logging
 LOGGER = logging.getLogger(__name__)
@@ -29,8 +27,19 @@ prefixes = ["/", "~", "?", "!"]
 
 plugins = dict(root="plugins")
 
+class MyClient(Client):
+    async def start(self, *args, **kwargs):
+        await super().start(*args, **kwargs)
+        
+        # Manually adjust time to local time zone
+        synced_time = datetime.utcnow()  # Assuming synchronized time is in UTC
+        local_time = synced_time + timedelta(hours=5, minutes=30)  # Adjust for GMT+5:30
+        
+        LOGGER.info(f"Synchronized Time (UTC): {synced_time}")
+        LOGGER.info(f"Local Time: {local_time}")
+
 if __name__ == "__main__":
-    bot = Client(
+    bot = MyClient(
         "StarkBot",
         bot_token=Config.BOT_TOKEN,
         api_id=Config.API_ID,
@@ -44,14 +53,6 @@ if __name__ == "__main__":
         await bot.start()
         bot_info = await bot.get_me()
         LOGGER.info(f"<--- @{bot_info.username} Started (c) STARKBOT --->")
-        
-        # Adjust time to local time zone
-        synced_time = datetime.utcnow()  # Assuming synchronized time is in UTC
-        local_time = synced_time + timedelta(hours=5, minutes=30)  # Adjust for GMT+5:30
-        
-        LOGGER.info(f"Synchronized Time (UTC): {synced_time}")
-        LOGGER.info(f"Local Time: {local_time}")
-        
         await idle()
     
     asyncio.get_event_loop().run_until_complete(main())
